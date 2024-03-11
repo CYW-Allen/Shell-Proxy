@@ -5,13 +5,10 @@ import (
 	"log"
 	"strings"
 
+	"shellProxy/data_defs"
+
 	"github.com/gin-gonic/gin"
 )
-
-type ReqParams struct {
-	ShellName string   `form:"name" json:"name"`
-	CmdOpts   []string `form:"opts" json:"opts"`
-}
 
 func sendResponse(ctx *gin.Context, statusCode int, result string, shellLogs []string, proxyLog string) {
 	ctx.JSON(statusCode, gin.H{
@@ -21,7 +18,7 @@ func sendResponse(ctx *gin.Context, statusCode int, result string, shellLogs []s
 	log.Println(proxyLog)
 }
 
-func examReq(reqParams *ReqParams, ctx *gin.Context) bool {
+func examReq(reqParams *data_defs.ReqParams, ctx *gin.Context) bool {
 	if err := ctx.BindQuery(reqParams); err != nil || reqParams.ShellName == "" {
 		sendResponse(
 			ctx,
@@ -41,7 +38,7 @@ func main() {
 	router.SetTrustedProxies(nil)
 
 	router.GET("/shell", func(ctx *gin.Context) {
-		var reqParams ReqParams
+		var reqParams data_defs.ReqParams
 
 		if examReq(&reqParams, ctx) {
 			sendResponse(
