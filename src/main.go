@@ -72,5 +72,23 @@ func main() {
 		}
 	})
 
+	router.GET("/status", func(ctx *gin.Context) {
+		var reqParams data_defs.ReqParams
+
+		if handlers.ExamReq(&reqParams, ctx) {
+			handlers.SendResponse(
+				ctx,
+				200,
+				fmt.Sprintf(
+					"Current execution [%s] status: %s",
+					reqParams.ShellName,
+					workList.GetCurExecStatus(reqParams.ShellName),
+				),
+				workList.Executions[reqParams.ShellName].Logs,
+				fmt.Sprintf("%s - Log: Get the execution [%s] status", ctx.ClientIP(), reqParams.ShellName),
+			)
+		}
+	})
+
 	router.Run(":8080")
 }
