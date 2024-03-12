@@ -63,7 +63,7 @@ func ExamReq(reqParams *data_defs.ReqParams, ctx *gin.Context) bool {
 			400,
 			"Invalid request for shell execution",
 			[]string{},
-			fmt.Sprintf("%s - (examConfig) ERR: Invalid params", ctx.ClientIP()))
+			fmt.Sprintf("%s - (examReq) ERR: Invalid params", ctx.ClientIP()))
 		return false
 	}
 
@@ -75,7 +75,7 @@ func ExamReq(reqParams *data_defs.ReqParams, ctx *gin.Context) bool {
 				404,
 				"Fail to access the shell script",
 				[]string{},
-				fmt.Sprintf("%s - (examConfig) ERR: %s", ctx.ClientIP(), err))
+				fmt.Sprintf("%s - (examReq) ERR: %s", ctx.ClientIP(), err))
 			return false
 		}
 	}

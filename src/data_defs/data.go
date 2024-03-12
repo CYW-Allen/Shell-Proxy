@@ -22,6 +22,7 @@ type WorkList struct {
 	Executions map[string]ExeShell
 }
 
+var TIMEFORMAT = "2006-01-02 15:04:05"
 var COOLINGDOWN = 30 * time.Second
 
 func (wl *WorkList) GetCurExecStatus(name string) string {
