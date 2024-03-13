@@ -1,4 +1,4 @@
-package data_defs
+package models
 
 import (
 	"log"
@@ -6,13 +6,7 @@ import (
 	"time"
 )
 
-const TIMEFORMAT = "2006-01-02 15:04:05"
 const COOLINGDOWN = 30 * time.Second
-
-type ReqParams struct {
-	ShellName string   `form:"name" json:"name"`
-	CmdOpts   []string `form:"opts" json:"opts"`
-}
 
 type ExeShell struct {
 	Rw     sync.RWMutex

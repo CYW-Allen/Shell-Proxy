@@ -7,14 +7,16 @@ import (
 	"log"
 	"os/exec"
 	"runtime"
-	"shellProxy/data_defs"
+	"shellProxy/models"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func connectShellPipe(shellName string, es *data_defs.ExeShell, stdPipe io.ReadCloser, wg *sync.WaitGroup) {
+const TIMEFORMAT = "2006-01-02 15:04:05"
+
+func connectShellPipe(shellName string, es *models.ExeShell, stdPipe io.ReadCloser, wg *sync.WaitGroup) {
 	defer wg.Done()
 	scanner := bufio.NewScanner(stdPipe)
 
@@ -25,7 +27,7 @@ func connectShellPipe(shellName string, es *data_defs.ExeShell, stdPipe io.ReadC
 	}
 }
 
-func execShell(shellName string, es *data_defs.ExeShell, cmdOpts []string, c *gin.Context) {
+func execShell(shellName string, es *models.ExeShell, cmdOpts []string, c *gin.Context) {
 	var wg sync.WaitGroup
 	var executor string
 
@@ -65,7 +67,7 @@ func execShell(shellName string, es *data_defs.ExeShell, cmdOpts []string, c *gi
 	wg.Wait()
 }
 
-func StartExecution(es *data_defs.ExeShell, ctx *gin.Context, rp data_defs.ReqParams) {
+func StartExecution(es *models.ExeShell, ctx *gin.Context, rp models.ReqParams) {
 	go execShell(rp.ShellName, es, rp.CmdOpts, ctx)
 	SendResponse(
 		ctx,
@@ -76,11 +78,11 @@ func StartExecution(es *data_defs.ExeShell, ctx *gin.Context, rp data_defs.ReqPa
 	)
 }
 
-func CheckTTLBeforeExec(es *data_defs.ExeShell, ctx *gin.Context, rp data_defs.ReqParams, execResult string) {
+func CheckTTLBeforeExec(es *models.ExeShell, ctx *gin.Context, rp models.ReqParams, execResult string) {
 	log.Printf(
 		"now: %v, ttl: %v\n",
-		time.Now().Format(data_defs.TIMEFORMAT),
-		es.GetShellTTL().Format(data_defs.TIMEFORMAT),
+		time.Now().Format(TIMEFORMAT),
+		es.GetShellTTL().Format(TIMEFORMAT),
 	)
 	if !es.CheckShellTTL() {
 		log.Println("Cooling down finished!")

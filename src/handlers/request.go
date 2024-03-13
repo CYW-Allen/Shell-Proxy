@@ -6,7 +6,7 @@ import (
 	"os"
 	"regexp"
 	"runtime"
-	"shellProxy/data_defs"
+	"shellProxy/models"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,7 @@ func replaceDoubleDots(oriString string) string {
 	return strings.Join(dirKeys, "/")
 }
 
-func sanitizeReq(reqParams *data_defs.ReqParams, ctx *gin.Context) bool {
+func sanitizeReq(reqParams *models.ReqParams, ctx *gin.Context) bool {
 	pattSlash := regexp.MustCompile(`\\`)
 	pattEndSlash := regexp.MustCompile(`^\/*|\/*$`)
 	pattMidSlash := regexp.MustCompile(`\/+`)
@@ -56,7 +56,7 @@ func sanitizeReq(reqParams *data_defs.ReqParams, ctx *gin.Context) bool {
 	return true
 }
 
-func ExamReq(reqParams *data_defs.ReqParams, ctx *gin.Context) bool {
+func ExamReq(reqParams *models.ReqParams, ctx *gin.Context) bool {
 	if err := ctx.BindQuery(reqParams); err != nil || reqParams.ShellName == "" {
 		SendResponse(
 			ctx,
