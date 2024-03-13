@@ -69,7 +69,7 @@ func (es *ExeShell) refreshShellTTL() {
 }
 
 func (es *ExeShell) CheckShellTTL() bool {
-	stillInCoolingDown := es.TTL.After(time.Now())
+	stillInCoolingDown := es.GetShellTTL().After(time.Now())
 	if stillInCoolingDown {
 		es.refreshShellTTL()
 	}
