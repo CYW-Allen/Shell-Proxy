@@ -6,79 +6,84 @@ import (
 	"time"
 )
 
+const TIMEFORMAT = "2006-01-02 15:04:05"
+const COOLINGDOWN = 30 * time.Second
+
 type ReqParams struct {
 	ShellName string   `form:"name" json:"name"`
 	CmdOpts   []string `form:"opts" json:"opts"`
 }
 
 type ExeShell struct {
+	Rw     sync.RWMutex
 	Status string
 	Logs   []string
 	TTL    time.Time
 }
 
-type WorkList struct {
-	Rw         sync.RWMutex
-	Executions map[string]ExeShell
+func (es *ExeShell) GetCurExecStatus() string {
+	es.Rw.RLock()
+	defer es.Rw.RUnlock()
+	return es.Status
 }
 
-var TIMEFORMAT = "2006-01-02 15:04:05"
-var COOLINGDOWN = 30 * time.Second
+func (es *ExeShell) SetCurExecStatus(newStatus string, isInit bool) {
+	es.Rw.Lock()
+	defer es.Rw.Unlock()
 
-func (wl *WorkList) GetCurExecStatus(name string) string {
-	wl.Rw.RLock()
-	defer wl.Rw.RUnlock()
-
-	return wl.Executions[name].Status
-}
-
-func (wl *WorkList) SetCurExecStatus(name string, status string, isInit bool) {
-	wl.Rw.Lock()
-	defer wl.Rw.Unlock()
-
-	exec := wl.Executions[name]
-	exec.Status = status
+	es.Status = newStatus
 
 	if isInit {
-		exec.Logs = []string{}
-	} else {
-		exec.Logs = wl.Executions[name].Logs
+		es.Logs = []string{}
 	}
 
-	if status == "complete" || status == "fail" {
-		exec.TTL = time.Now().Add(COOLINGDOWN)
+	if newStatus == "complete" || newStatus == "fail" {
+		es.TTL = time.Now().Add(COOLINGDOWN)
 	} else {
-		exec.TTL = time.Now()
+		es.TTL = time.Now()
 	}
-
-	wl.Executions[name] = exec
 }
 
-func (wl *WorkList) RemoveCurExec(name string) {
-	wl.Rw.Lock()
-	defer wl.Rw.Unlock()
-
-	delete(wl.Executions, name)
+func (es *ExeShell) GetShellLogs() []string {
+	es.Rw.RLock()
+	defer es.Rw.RUnlock()
+	return es.Logs
 }
 
-func (wl *WorkList) refreshShellTTL(name string) {
-	wl.Rw.Lock()
-	defer wl.Rw.Unlock()
+func (es *ExeShell) UpdateShellLogs(newLog string) {
+	es.Rw.Lock()
+	defer es.Rw.Unlock()
+	es.Logs = append(es.Logs, newLog)
+}
 
-	exec := wl.Executions[name]
-	exec.TTL = time.Now().Add(COOLINGDOWN)
-	wl.Executions[name] = exec
+func (es *ExeShell) GetShellTTL() time.Time {
+	es.Rw.RLock()
+	defer es.Rw.RUnlock()
+	return es.TTL
+}
+
+func (es *ExeShell) refreshShellTTL() {
+	es.Rw.Lock()
+	defer es.Rw.Unlock()
+
+	es.TTL = time.Now().Add(COOLINGDOWN)
 	log.Printf(
 		"curTime: %v, new ttl: %v\n",
 		time.Now().Format("2006-01-02 15:04:05"),
-		wl.Executions[name].TTL.Format("2006-01-02 15:04:05"),
+		es.TTL.Format("2006-01-02 15:04:05"),
 	)
 }
 
-func (wl *WorkList) CheckShellTTL(name string) bool {
-	stillInCoolingDown := wl.Executions[name].TTL.After(time.Now())
+func (es *ExeShell) CheckShellTTL() bool {
+	stillInCoolingDown := es.TTL.After(time.Now())
 	if stillInCoolingDown {
-		wl.refreshShellTTL(name)
+		es.refreshShellTTL()
 	}
 	return stillInCoolingDown
+}
+
+var WorkList map[string]*ExeShell
+
+func init() {
+	WorkList = make(map[string]*ExeShell)
 }
