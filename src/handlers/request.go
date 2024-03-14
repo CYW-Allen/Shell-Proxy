@@ -17,7 +17,7 @@ func replaceDoubleDots(oriString string) string {
 
 	for i, key := range dirKeys {
 		if key == ".." {
-			dirKeys[i] = "X"
+			dirKeys[i] = ""
 		}
 	}
 
@@ -42,8 +42,8 @@ func sanitizeReq(reqParams *models.ReqParams, ctx *gin.Context) bool {
 
 	sanitizedStr = pattSlash.ReplaceAllString(sanitizedStr, "/")
 	sanitizedStr = pattEndSlash.ReplaceAllString(sanitizedStr, "")
-	sanitizedStr = pattMidSlash.ReplaceAllString(sanitizedStr, "/")
 	sanitizedStr = replaceDoubleDots(sanitizedStr)
+	sanitizedStr = pattMidSlash.ReplaceAllString(sanitizedStr, "/")
 
 	var scriptExt string
 	if runtime.GOOS == "windows" {

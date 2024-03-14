@@ -8,4 +8,5 @@ services:
       - "8080:8080"
     volumes:
       - ./src:/app/src
-      - ./dist:/app/dist
+      # For exporting the artifact
+      # - ./dist:/app/dist

@@ -1,9 +1,10 @@
 FROM golang:1.21.3-alpine3.18
 
 COPY ./src /app/src
-COPY ./test/sh /app/build
+COPY ./demo /app/build
 
-RUN mkdir dist
+# For exporting the artifact
+# RUN mkdir dist
 
 WORKDIR /app/src
 
@@ -13,4 +14,6 @@ RUN go build -o /app/build/server
 
 WORKDIR /app/build
 
-ENTRYPOINT [ "/bin/sh", "-c", "cp /app/build/server /app/dist/server && /app/build/server" ]
+# For exporting the artifact
+# ENTRYPOINT [ "/bin/sh", "-c", "cp /app/build/server /app/dist/server && /app/build/server" ]
+ENTRYPOINT [ "/bin/sh", "-c", "/app/build/server" ]
