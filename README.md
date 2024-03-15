@@ -98,6 +98,29 @@ This server provides two main routes, `shell` and `status`, for script executing
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
+## Additional
+
+Customize the icon of the executable file on windows.
+
+1. Prepare one ico file (exe.ico).
+2. Create rc file with the following content.
+   ```
+   #include "winuser.h"
+   #define IDR_MYICON 101
+   IDR_MYICON ICON "./exe.ico"
+   ```
+3. Build syso file.
+   ```ps
+   windres -o file fileinfo.syso fileinfo.rc
+   ```
+4. Build artifact.
+   ```ps
+   go build
+   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
 ## Built With
 
 * [![Golang][Golang-badge]][Golang-url]
